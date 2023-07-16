@@ -1,70 +1,182 @@
-# Terraform code to deploy three-tier architecture on azure
+# PowerShell code will query and pull the meta data of azure instance and provide json formet output
+To access IMDS, create a VM from Azure Resource Manager or the Azure portal, and use the following samples. For more examples, see Azure Instance Metadata Samples.
 
-## What is three-tier architecture?
-Three-tier architecture is a well-established software application architecture that organizes applications into three logical and physical computing tiers: the presentation tier, or user interface; the application tier, where data is processed; and the data tier, where the data associated with the application is stored and managed.
+Here's sample code to retrieve all metadata for an instance. To access a specific data source, see Endpoint Categories for an overview of all available features.
 
-## What is terraform?
-Terraform is an open-source infrastructure as code software tool created by HashiCorp. Users define and provision data center infrastructure using a declarative configuration language known as HashiCorp Configuration Language, or optionally JSON.
+PoweShell CMD -  Invoke-RestMethod -Headers @{"Metadata"="true"} -Method GET -NoProxy -Uri "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | ConvertTo-Json -Depth 
 
-## Installation
-- [Terraform](https://www.terraform.io/downloads.html)
+-NoProxy requires PowerShell V6 or greater. See our samples repository for examples with older PowerShell versions.
 
-## Problem Statement
+The response is a JSON string. The following example response is pretty-printed for readability.
 
-1. One virtual network tied in three subnets.
-2. Each subnet will have one virtual machine.
-3. First virtual machine -> allow inbound traffic from internet only.
-4. Second virtual machine -> entertain traffic from first virtual machine only and can reply the same virtual machine again.
-5. App can connect to database and database can connect to app but database cannot connect to web.
+Output 
 
-_Note: Keep main and variable files different for each component_
+{
+    "compute": {
+        "azEnvironment": "AZUREPUBLICCLOUD",
+        "additionalCapabilities": {
+            "hibernationEnabled": "true"
+        },
+        "hostGroup": {
+          "id": "testHostGroupId"
+        }, 
+        "extendedLocation": {
+            "type": "edgeZone",
+            "name": "microsoftlosangeles"
+        },
+        "evictionPolicy": "",
+        "isHostCompatibilityLayerVm": "true",
+        "licenseType":  "Windows_Client",
+        "location": "westus",
+        "name": "examplevmname",
+        "offer": "WindowsServer",
+        "osProfile": {
+            "adminUsername": "admin",
+            "computerName": "examplevmname",
+            "disablePasswordAuthentication": "true"
+        },
+        "osType": "Windows",
+        "placementGroupId": "f67c14ab-e92c-408c-ae2d-da15866ec79a",
+        "plan": {
+            "name": "planName",
+            "product": "planProduct",
+            "publisher": "planPublisher"
+        },
+        "platformFaultDomain": "36",
+        "platformSubFaultDomain": "",        
+        "platformUpdateDomain": "42",
+        "priority": "Regular",
+        "publicKeys": [{
+                "keyData": "ssh-rsa 0",
+                "path": "/home/user/.ssh/authorized_keys0"
+            },
+            {
+                "keyData": "ssh-rsa 1",
+                "path": "/home/user/.ssh/authorized_keys1"
+            }
+        ],
+        "publisher": "RDFE-Test-Microsoft-Windows-Server-Group",
+        "resourceGroupName": "macikgo-test-may-23",
+        "resourceId": "/subscriptions/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx/resourceGroups/macikgo-test-may-23/providers/Microsoft.Compute/virtualMachines/examplevmname",
+        "securityProfile": {
+            "secureBootEnabled": "true",
+            "virtualTpmEnabled": "false",
+            "encryptionAtHost": "true",
+            "securityType": "TrustedLaunch"
+        },
+        "sku": "2019-Datacenter",
+        "storageProfile": {
+            "dataDisks": [{
+                "bytesPerSecondThrottle": "979202048",
+                "caching": "None",
+                "createOption": "Empty",
+                "diskCapacityBytes": "274877906944",
+                "diskSizeGB": "1024",
+                "image": {
+                  "uri": ""
+                },
+                "isSharedDisk": "false",
+                "isUltraDisk": "true",
+                "lun": "0",
+                "managedDisk": {
+                  "id": "/subscriptions/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx/resourceGroups/macikgo-test-may-23/providers/Microsoft.Compute/disks/exampledatadiskname",
+                  "storageAccountType": "StandardSSD_LRS"
+                },
+                "name": "exampledatadiskname",
+                "opsPerSecondThrottle": "65280",
+                "vhd": {
+                  "uri": ""
+                },
+                "writeAcceleratorEnabled": "false"
+            }],
+            "imageReference": {
+                "id": "",
+                "offer": "WindowsServer",
+                "publisher": "MicrosoftWindowsServer",
+                "sku": "2019-Datacenter",
+                "version": "latest"
+            },
+            "osDisk": {
+                "caching": "ReadWrite",
+                "createOption": "FromImage",
+                "diskSizeGB": "30",
+                "diffDiskSettings": {
+                    "option": "Local"
+                },
+                "encryptionSettings": {
+                  "enabled": "false",
+                  "diskEncryptionKey": {
+                    "sourceVault": {
+                      "id": "/subscriptions/test-source-guid/resourceGroups/testrg/providers/Microsoft.KeyVault/vaults/test-kv"
+                    },
+                    "secretUrl": "https://test-disk.vault.azure.net/secrets/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
+                  },
+                  "keyEncryptionKey": {
+                    "sourceVault": {
+                      "id": "/subscriptions/test-key-guid/resourceGroups/testrg/providers/Microsoft.KeyVault/vaults/test-kv"
+                    },
+                    "keyUrl": "https://test-key.vault.azure.net/secrets/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
+                  }
+                },
+                "image": {
+                    "uri": ""
+                },
+                "managedDisk": {
+                    "id": "/subscriptions/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx/resourceGroups/macikgo-test-may-23/providers/Microsoft.Compute/disks/exampleosdiskname",
+                    "storageAccountType": "StandardSSD_LRS"
+                },
+                "name": "exampleosdiskname",
+                "osType": "Windows",
+                "vhd": {
+                    "uri": ""
+                },
+                "writeAcceleratorEnabled": "false"
+            },
+            "resourceDisk": {
+                "size": "4096"
+            }
+        },
+        "subscriptionId": "xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+        "tags": "baz:bash;foo:bar",
+        "userData": "Zm9vYmFy",
+        "version": "15.05.22",
+        "virtualMachineScaleSet": {
+            "id": "/subscriptions/xxxxxxxx-xxxxx-xxx-xxx-xxxx/resourceGroups/resource-group-name/providers/Microsoft.Compute/virtualMachineScaleSets/virtual-machine-scale-set-name"
+        },
+        "vmId": "02aab8a4-74ef-476e-8182-f6d2ba4166a6",
+        "vmScaleSetName": "crpteste9vflji9",
+        "vmSize": "Standard_A3",
+        "zone": ""
+    },
+    "network": {
+        "interface": [{
+            "ipv4": {
+               "ipAddress": [{
+                    "privateIpAddress": "10.144.133.132",
+                    "publicIpAddress": ""
+                }],
+                "subnet": [{
+                    "address": "10.144.133.128",
+                    "prefix": "26"
+                }]
+            },
+            "ipv6": {
+                "ipAddress": [
+                 ]
+            },
+            "macAddress": "0011AAFFBB22"
+        }]
+    }
+}
 
-## Solution
+Must contain the header Metadata: true
+Must not contain an X-Forwarded-For header
+Any request that doesn't meet both of these requirements are rejected by the service.
 
-### The Terraform resources will consists of following structure
+IMDS endpoints support HTTP query string parameters. For example:
+http://169.254.169.254/metadata/instance/compute?api-version=2021-01-01&format=json
 
-```
-├── main.tf                   // The primary entrypoint for terraform resources.
-├── vars.tf                   // It contain the declarations for variables.
-├── output.tf                 // It contain the declarations for outputs.
-├── terraform.tfvars          // The file to pass the terraform variables values.
-```
+Exposes the important metadata for the VM instance, including compute, network, and storage.
+GET /metadata/instance
 
-### Module
-
-A module is a container for multiple resources that are used together. Modules can be used to create lightweight abstractions, so that you can describe your infrastructure in terms of its architecture, rather than directly in terms of physical objects.
-
-For the solution, we have created and used five modules:
-1. resourcegroup - creating resourcegroup
-2. networking - creating azure virtual network and required subnets
-3. securitygroup - creating network security group, setting desired security rules and associating them to subnets
-4. compute - creating availability sets, network interfaces and virtual machines
-5. database - creating database server and database
-
-All the stacks are placed in the modules folder and the variable are stored under **terraform.tfvars**
-
-To run the code you need to append the variables in the terraform.tfvars
-
-Each module consists minimum two files: main.tf, vars.tf
-
-resourcegroup and networking modules consists of one extra file named output.tf
-
-## Deployment
-
-### Steps
-
-**Step 0** `terraform init`
-
-used to initialize a working directory containing Terraform configuration files
-
-**Step 1** `terraform plan`
-
-used to create an execution plan
-
-**Step 2** `terraform validate`
-
-validates the configuration files in a directory, referring only to the configuration and not accessing any remote services such as remote state, provider APIs, etc
-
-**Step 3** `terraform apply`
-
-used to apply the changes required to reach the desired state of the configuration
+---- End-----
